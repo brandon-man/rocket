@@ -1,6 +1,6 @@
 const main = async () => {
   const [deployer] = await hre.ethers.getSigners();
-  const accountBalance = await deployer.getBalance();
+  const accountBalance = await deployer.getBalance(); // deploy balance
 
   console.log("Deploying contracts with account: ", deployer.address);
   console.log("Account balance: ", accountBalance.toString());

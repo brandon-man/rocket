@@ -1,37 +1,39 @@
 const main = async () => {
-  const [owner, randomPerson] = await hre.ethers.getSigners();
   const rocketContractFactory = await hre.ethers.getContractFactory(
     "RocketPortal"
-  ); // compile contract
-  const rocketContract = await rocketContractFactory.deploy(); // create local Ethereum network and refreshes local server
-  await rocketContract.deployed(); // wait until contract is deployed
-
-  console.log("Contract deployed to:", rocketContract.address);
-  console.log("Contract deployed to:", owner.address);
+  );
+  const rocketContract = await rocketContractFactory.deploy();
+  await rocketContract.deployed();
+  console.log("Contract addy:", rocketContract.address);
 
   let rocketCount;
   rocketCount = await rocketContract.getTotalRockets();
+  console.log(rocketCount.toNumber());
 
-  let rocketTxn = await rocketContract.rocket();
-  await rocketTxn.wait();
+  /**
+   * Let's send a few rockets!
+   */
+  let rocketTxn = await rocketContract.rocket("A message!");
+  await rocketTxn.wait(); // Wait for the transaction to be mined
 
-  rocketCount = await rocketContract.getTotalRockets();
+  const [_, randomPerson] = await hre.ethers.getSigners();
+  rocketTxn = await rocketContract
+    .connect(randomPerson)
+    .rocket("Another message!");
+  await rocketTxn.wait(); // Wait for the transaction to be mined
 
-  rocketTxn = await rocketContract.connect(randomPerson).rocket();
-  await rocketTxn.wait();
-
-  rocketCount = await rocketContract.getTotalRockets();
+  let allRockets = await rocketContract.getAllRockets();
+  console.log(allRockets);
 };
 
 const runMain = async () => {
   try {
     await main();
-    process.exit(0); // exit Node process without error
+    process.exit(0);
   } catch (error) {
     console.log(error);
-    process.exit(1); // exit Node process while indicating 'Uncaught Fatal Exception' error
+    process.exit(1);
   }
-  // Read more about Node exit ('process.exit(num)') status codes here: https://stackoverflow.com/a/47163396/7974948
 };
 
 runMain();

@@ -1,14 +1,11 @@
 const main = async () => {
-  const [deployer] = await hre.ethers.getSigners();
-  const accountBalance = await deployer.getBalance(); // deploy balance
-
-  console.log("Deploying contracts with account: ", deployer.address);
-  console.log("Account balance: ", accountBalance.toString());
-
   const rocketContractFactory = await hre.ethers.getContractFactory(
     "RocketPortal"
   );
-  const rocketContract = await rocketContractFactory.deploy();
+  const rocketContract = await rocketContractFactory.deploy({
+    value: hre.ethers.utils.parseEther("0.001"),
+  });
+
   await rocketContract.deployed();
 
   console.log("RocketPortal address: ", rocketContract.address);

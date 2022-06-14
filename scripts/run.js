@@ -2,25 +2,36 @@ const main = async () => {
   const rocketContractFactory = await hre.ethers.getContractFactory(
     "RocketPortal"
   );
-  const rocketContract = await rocketContractFactory.deploy();
+  const rocketContract = await rocketContractFactory.deploy({
+    value: hre.ethers.utils.parseEther("0.1"),
+  });
   await rocketContract.deployed();
   console.log("Contract addy:", rocketContract.address);
 
-  let rocketCount;
-  rocketCount = await rocketContract.getTotalRockets();
-  console.log(rocketCount.toNumber());
+  /*
+   * Get Contract balance
+   */
+  let contractBalance = await hre.ethers.provider.getBalance(
+    rocketContract.address
+  );
+  console.log(
+    "Contract balance:",
+    hre.ethers.utils.formatEther(contractBalance)
+  );
 
   /**
    * Let's send a few rockets!
    */
-  let rocketTxn = await rocketContract.rocket("A message!");
+  let rocketTxn = await rocketContract.rocket("This is rocket #1");
   await rocketTxn.wait(); // Wait for the transaction to be mined
 
-  const [_, randomPerson] = await hre.ethers.getSigners();
-  rocketTxn = await rocketContract
-    .connect(randomPerson)
-    .rocket("Another message!");
-  await rocketTxn.wait(); // Wait for the transaction to be mined
+  contractBalance = await hre.ethers.provider.getBalance(
+    rocketContract.address
+  );
+  console.log(
+    "Contract balance:",
+    hre.ethers.utils.formatEther(contractBalance)
+  );
 
   let allRockets = await rocketContract.getAllRockets();
   console.log(allRockets);
